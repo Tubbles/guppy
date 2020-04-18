@@ -14,8 +14,8 @@
 class Guppy : public olc::PixelGameEngine
 {
 public:
-    int x,y;
-    std::vector<olc::vi2d> pixels;
+    constexpr static int WIDTH = 640, HEIGHT = 480;
+    olc::Pixel canvas[WIDTH*HEIGHT];
 
     Guppy()
     {
@@ -23,7 +23,6 @@ public:
     }
     bool OnUserCreate() override
     {
-        x = y = 0;
         return true;
     }
     bool OnUserUpdate(float fElapsedTime) override
@@ -33,19 +32,17 @@ public:
         // auto now = std::chrono::high_resolution_clock::now();
 
         Clear(olc::BLACK);
-        // Draw(x, y, olc::Pixel(gray, gray, gray));
-        // Draw(x, y, olc::Pixel(255, 255, 255));
-        Draw(GetMouseX(), GetMouseY(), olc::Pixel(255, 255, 255));
 
-        for(auto p : pixels)
+        for(int i = 0; i < WIDTH*HEIGHT; ++i)
         {
-            Draw(p.x, p.y, olc::Pixel(255, 255, 255));
+            Draw(i%WIDTH, i/WIDTH, canvas[i]);
         }
 
-        if(GetMouse(0).bPressed)
+        Draw(GetMouseX(), GetMouseY(), olc::Pixel(255, 255, 255));
+
+        if(GetMouse(0).bHeld)
         {
-            olc::vi2d p = {GetMouseX(), GetMouseY()};
-            pixels.push_back(p);
+            canvas[GetMouseX() + GetMouseY()*WIDTH] = olc::Pixel(255, 255, 255);
         }
 
         // ++x;
@@ -69,7 +66,7 @@ public:
 int main()
 {
     Guppy app;
-    if (app.Construct(256, 240, 4, 4))
+    if (app.Construct(Guppy::WIDTH, Guppy::HEIGHT, 2, 2))
     {
         app.Start();
         return 0;
